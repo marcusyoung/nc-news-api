@@ -28,7 +28,7 @@ describe('GET /api/topics', () => {
             .get('/api/topics')
             .expect(200)
     })
-    test('GET 200  an array of topics object of correct length and with expected properties', () => {
+    test('GET 200  an array of topic objects of correct length and with expected properties', () => {
         return request(app)
             .get('/api/topics')
             .then(({ body }) => {

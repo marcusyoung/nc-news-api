@@ -5,5 +5,4 @@ function selectTopics() {
         .then((result) => result.rows)
 }
 
-
 module.exports = selectTopics
