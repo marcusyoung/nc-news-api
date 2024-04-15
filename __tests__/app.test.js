@@ -51,7 +51,7 @@ describe('GET /api/topics', () => {
             })
     })
 })
-describe('GET /api/articles', () => {
+describe('GET /api/articles/:article_id', () => {
     test('GET 200 responds with an article object corresponding with the id passed as a request parameter and having the expected properties', () => {
         return request(app)
             .get('/api/articles/2')
@@ -83,5 +83,25 @@ describe('GET /api/articles', () => {
             .then(({ body }) => {
                 expect(body.msg).toBe('No article found for article_id: 14')
             })
+    })
+})
+describe('GET /api/articles', () => {
+    test('GET 200 returns an array of article objects with the expected properties', () => {
+        return request(app)
+        .get('/api/articles')
+        .expect(200)
+        .then(({body}) => {
+            const {articles} = body
+            expect(articles.length).toBe(13)
+            articles.forEach((article) => {
+                expect(typeof article.author).toBe('text')
+                expect(typeof article.title).toBe('text')
+                expect(typeof article.topic).toBe('text')
+                expect(typeof article.created_at).toBe('text')
+                expect(typeof article.votes).toBe('number')
+                expect(typeof article_img_url).toBe('text')
+                expect(typeof article.comment_count).toBe('number')
+            })
+        })
     })
 })

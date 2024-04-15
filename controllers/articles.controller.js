@@ -11,4 +11,4 @@ function getArticle(req, res, next) {
         .catch(next)
 }
 
-module.exports = getArticle
+module.exports = { getArticle }
