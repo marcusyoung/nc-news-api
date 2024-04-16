@@ -1,10 +1,11 @@
 const express = require('express')
 const getTopics = require('./controllers/topics.controller')
 const { getArticle, getArticles } = require('./controllers/articles.controller')
-const getCommentsByArticleId = require('./controllers/comments.controller')
+const { getCommentsByArticleId, postComment} = require('./controllers/comments.controller')
 const endpoints = require('./endpoints.json')
 
 const app = express()
+app.use(express.json())
 
 app.get('/api', (req, res) => {
     res.status(200).send({ endpoints: endpoints })
@@ -17,6 +18,8 @@ app.get('/api/articles/:article_id', getArticle)
 app.get('/api/articles', getArticles)
 
 app.get('/api/articles/:article_id/comments', getCommentsByArticleId)
+
+app.post('/api/articles/:article_id/comments', postComment)
 
 // if api endpoint not found return 404
 app.all('*', (req, res, next) => {
@@ -35,6 +38,9 @@ app.use((err, req, res, next) => {
     switch (err.code) {
         case '22P02':
             res.status(400).send({ msg: 'Invalid input' })
+            break
+        case '23502':
+            res.status(400).send({msg: 'Invalid input (not_null_violation)'})
             break
         default: next(err)
     }
