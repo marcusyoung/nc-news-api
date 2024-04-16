@@ -2,7 +2,7 @@ const db = require('../db/connection')
 
 function selectArticle(article_id) {
 
-    return db.query(`SELECT * from articles where article_id =  $1`, [article_id])
+    return db.query(`SELECT * from articles where article_id =  $1;`, [article_id])
         .then((result) => {
             const article = result.rows[0]
             if (!article) {
@@ -31,7 +31,7 @@ function selectArticles() {
         FROM articles
         LEFT JOIN tmp
         ON articles.article_id = tmp.article_id
-        ORDER BY created_at DESC`)
+        ORDER BY created_at DESC;`)
         .then((results) => results.rows)
 }
 
