@@ -1,4 +1,4 @@
-const selectArticle = require('../models/articles.model')
+const { selectArticle, selectArticles } = require('../models/articles.model')
 
 function getArticle(req, res, next) {
 
@@ -11,4 +11,16 @@ function getArticle(req, res, next) {
         .catch(next)
 }
 
-module.exports = { getArticle }
+
+function getArticles(req, res, next) {
+
+    selectArticles()
+        .then((articles) => {
+            console.log(articles)
+            res.status(200).send({ articles: articles })
+        })
+
+}
+
+
+module.exports = { getArticle, getArticles }

@@ -88,20 +88,23 @@ describe('GET /api/articles/:article_id', () => {
 describe('GET /api/articles', () => {
     test('GET 200 returns an array of article objects with the expected properties', () => {
         return request(app)
-        .get('/api/articles')
-        .expect(200)
-        .then(({body}) => {
-            const {articles} = body
-            expect(articles.length).toBe(13)
-            articles.forEach((article) => {
-                expect(typeof article.author).toBe('text')
-                expect(typeof article.title).toBe('text')
-                expect(typeof article.topic).toBe('text')
-                expect(typeof article.created_at).toBe('text')
-                expect(typeof article.votes).toBe('number')
-                expect(typeof article_img_url).toBe('text')
-                expect(typeof article.comment_count).toBe('number')
+            .get('/api/articles')
+            .expect(200)
+            .then(({ body }) => {
+                const { articles } = body
+                expect(articles.length).toBe(13)
+                expect(articles).toBeSortedBy('created_at', { descending: true })
+                articles.forEach((article) => {
+                    expect(typeof article.article_id).toBe('number')
+                    expect(typeof article.author).toBe('string')
+                    expect(typeof article.title).toBe('string')
+                    expect(typeof article.topic).toBe('string')
+                    expect(typeof article.created_at).toBe('string')
+                    expect(typeof article.votes).toBe('number')
+                    expect(typeof article.article_img_url).toBe('string')
+                    expect(typeof article.comment_count).toBe('number')
+                })
+                expect(articles.map((article) => article.comment_count)).toEqual([2, 1, 0, 0, 0, 2, 11, 2, 0, 0, 0, 0, 0])
             })
-        })
     })
 })
