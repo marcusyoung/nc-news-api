@@ -108,3 +108,50 @@ describe('GET /api/articles', () => {
             })
     })
 })
+describe('GET comments', () => {
+    test('GET 200 returns an array of comments for the provided article id', () => {
+        return request(app)
+            .get('/api/articles/1/comments')
+            .expect(200)
+            .then(({ body }) => {
+                const { comments } = body
+                expect(comments.length).toBe(11)
+                expect(comments).toBeSortedBy('created_at', { descending: true })
+                comments.forEach((comment) => {
+                    expect(comment).toEqual(expect.objectContaining({
+                        comment_id: expect.any(Number),
+                        votes: expect.any(Number),
+                        created_at: expect.any(String),
+                        author: expect.any(String),
+                        body: expect.any(String),
+                        article_id: expect.any(Number)
+                    }))
+                })
+            })
+    })
+    test('GET 400 if passed invalid parameter should return status 400 and expected message', () => {
+        return request(app)
+            .get('/api/articles/1.45/comments')
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Invalid input')
+            })
+    })
+    test('GET 404 if passed article_id that does not exist in the database table return status 404 and expected message', () => {
+        return request(app)
+            .get('/api/articles/14/comments')
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe('No article found for article_id: 14')
+            })
+    })
+    test('GET 200 returns empty array if passed and article_id that exists but where there are no comments for that article', () => {
+        return request(app)
+            .get('/api/articles/10/comments')
+            .expect(200)
+            .then(({ body }) => {
+                const { comments } = body
+                expect(comments).toEqual([])
+            })
+    })
+})
