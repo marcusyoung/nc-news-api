@@ -155,3 +155,52 @@ describe('GET comments', () => {
             })
     })
 })
+describe('POST 201 create comment for article', () => {
+    test('creates new comment for passed article_id and responds with that comment', () => {
+        const newComment = { username: "rogersop", body: "This is a test comment" }
+        const insertedComment = { author: "rogersop", body: "This is a test comment", votes: 0, article_id: 10 }
+        return request(app)
+            .post('/api/articles/10/comments').send(newComment)
+            .expect(201)
+            .then(({ body }) => {
+                const { comment } = body
+                expect(comment).toMatchObject(insertedComment)
+            })
+    })
+    test('POST 400 if passed comment does not have username property', () => {
+        const newComment = { user: "rogersop", body: "This is a test comment" }
+        return request(app)
+        .post('/api/articles/10/comments').send(newComment)
+        .expect(400)
+        .then(({ body }) => {
+            expect(body.msg).toBe('Invalid input (not_null_violation)')
+        })
+    })
+    test('POST 400 if passed comment does not have body property', () => {
+        const newComment = { username: "rogersop", notbody: "This is a test comment" }
+        return request(app)
+        .post('/api/articles/10/comments').send(newComment)
+        .expect(400)
+        .then(({ body }) => {
+            expect(body.msg).toBe('Invalid input (not_null_violation)')
+        })
+    })
+    test('POST 404 if passed username that does not exist in users table', () => {
+        const newComment = { username: "nonexistentuser", body: "This is a test comment" }
+        return request(app)
+        .post('/api/articles/10/comments').send(newComment)
+        .expect(404)
+        .then(({ body }) => {
+            expect(body.msg).toBe('Invalid input (foreign_key_violation)')
+        })
+    })
+    test('POST 404 if passed article id that does not exist in article table', () => {
+        const newComment = { username: "nonexistentuser", body: "This is a test comment" }
+        return request(app)
+        .post('/api/articles/14/comments').send(newComment)
+        .expect(404)
+        .then(({ body }) => {
+            expect(body.msg).toBe('Invalid input (foreign_key_violation)')
+        })
+    })
+})
