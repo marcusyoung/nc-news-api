@@ -170,37 +170,108 @@ describe('POST 201 create comment for article', () => {
     test('POST 400 if passed comment does not have username property', () => {
         const newComment = { user: "rogersop", body: "This is a test comment" }
         return request(app)
-        .post('/api/articles/10/comments').send(newComment)
-        .expect(400)
-        .then(({ body }) => {
-            expect(body.msg).toBe('Invalid input (not_null_violation)')
-        })
+            .post('/api/articles/10/comments').send(newComment)
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Invalid input (not_null_violation)')
+            })
     })
     test('POST 400 if passed comment does not have body property', () => {
         const newComment = { username: "rogersop", notbody: "This is a test comment" }
         return request(app)
-        .post('/api/articles/10/comments').send(newComment)
-        .expect(400)
-        .then(({ body }) => {
-            expect(body.msg).toBe('Invalid input (not_null_violation)')
-        })
+            .post('/api/articles/10/comments').send(newComment)
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Invalid input (not_null_violation)')
+            })
     })
     test('POST 404 if passed username that does not exist in users table', () => {
         const newComment = { username: "nonexistentuser", body: "This is a test comment" }
         return request(app)
-        .post('/api/articles/10/comments').send(newComment)
-        .expect(404)
-        .then(({ body }) => {
-            expect(body.msg).toBe('Invalid input (foreign_key_violation)')
-        })
+            .post('/api/articles/10/comments').send(newComment)
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Invalid input (foreign_key_violation)')
+            })
     })
     test('POST 404 if passed article id that does not exist in article table', () => {
         const newComment = { username: "nonexistentuser", body: "This is a test comment" }
         return request(app)
-        .post('/api/articles/14/comments').send(newComment)
-        .expect(404)
-        .then(({ body }) => {
-            expect(body.msg).toBe('Invalid input (foreign_key_violation)')
-        })
+            .post('/api/articles/14/comments').send(newComment)
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Invalid input (foreign_key_violation)')
+            })
+    })
+})
+describe('Update article by incrementing votes', () => {
+    test('PATCH 200 Updates an article\'s vote column depending on value of inc_votes in the request body - positive increment', () => {
+        const newVote = { inc_votes: 10 }
+        const updatedArticle = {
+            article_id: 1,
+            title: "Living in the shadow of a great man",
+            topic: "mitch",
+            author: "butter_bridge",
+            body: "I find this existence challenging",
+            created_at: "2020-07-09T20:11:00.000Z",
+            votes: 110,
+            article_img_url:
+                "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        }
+        return request(app)
+            .patch('/api/articles/1').send(newVote)
+            .expect(200)
+            .then(({ body }) => {
+                const { article } = body
+                expect(article).toEqual(updatedArticle)
+            })
+    })
+    test('PATCH 200 Updates an article\'s vote column depending on value of inc_votes in the request body - negative increment', () => {
+        const newVote = { inc_votes: -10 }
+        const updatedArticle = {
+            article_id: 1,
+            title: "Living in the shadow of a great man",
+            topic: "mitch",
+            author: "butter_bridge",
+            body: "I find this existence challenging",
+            created_at: "2020-07-09T20:11:00.000Z",
+            votes: 90,
+            article_img_url:
+                "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        }
+        return request(app)
+            .patch('/api/articles/1').send(newVote)
+            .expect(200)
+            .then(({ body }) => {
+                const { article } = body
+                expect(article).toEqual(updatedArticle)
+            })
+    })
+    test('PATCH 404 passed article_id is not in database', () => {
+        const newVote = { inc_votes: 10 }
+        return request(app)
+            .patch('/api/articles/14').send(newVote)
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe('No article found for article_id: 14')
+            })
+    })
+    test('PATCH 400 if passed inc_votes value not an integer', () => {
+        const newVote = { inc_votes: 10.5 }
+        return request(app)
+            .patch('/api/articles/1').send(newVote)
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Invalid input')
+            })
+    })
+    test('PATCH 400 passed object does not have inc_votes property', () => {
+        const newVote = { wrong_key: 10 }
+        return request(app)
+            .patch('/api/articles/1').send(newVote)
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Invalid input (not_null_violation)')
+            })
     })
 })
