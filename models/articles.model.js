@@ -35,4 +35,27 @@ function selectArticles() {
         .then((results) => results.rows)
 }
 
-module.exports = { selectArticle, selectArticles }
+function updateArticle(article_id, inc_votes) {
+
+    // check if article_id exists in database
+    // needs refactoring at some point as this code is duplicated in another model(dufferent ticket)
+    return db.query(`SELECT * FROM articles WHERE article_id = $1;`, [article_id])
+        .then((result) => {
+            if (result.rows < 1) {
+                return Promise.reject({
+                    custom_error: {
+                        status: 404,
+                        msg: `No article found for article_id: ${article_id}`
+                    }
+                })
+            } else {
+                return db.query(`UPDATE articles
+                SET votes = votes + $1 WHERE article_id = $2
+                RETURNING *;
+                `, [inc_votes, article_id])
+                    .then((result) => result.rows[0])
+            }
+        })
+}
+
+module.exports = { selectArticle, selectArticles, updateArticle }
