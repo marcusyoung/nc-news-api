@@ -7,7 +7,6 @@ function getCommentsByArticleId(req, res, next) {
 
     selectCommentsByArticleId(article_id)
         .then((comments) => {
-            console.log(comments)
             res.status(200).send({ comments: comments })
         })
         .catch(next)
