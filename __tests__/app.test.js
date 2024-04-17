@@ -275,3 +275,32 @@ describe('Update article by incrementing votes', () => {
             })
     })
 })
+describe('Delete comment', () => {
+    test('DELETE 204 delete comment by comment id', () => {
+        return request(app)
+            .delete('/api/comments/1')
+            .expect(204)
+            .then(() => {
+                return db.query('SELECT COUNT (*)::int FROM comments')
+                    .then((result) => {
+                        expect(result.rows[0].count).toBe(17)
+                    })
+            })
+    })
+    test('DELETE 404 when comment_id does not exist in database table', () => {
+        return request(app)
+            .delete('/api/comments/19')
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe('No comment found for comment_id: 19')
+            })
+    })
+    test('DELETE 400 when comment_id is not in valid format', () => {
+        return request(app)
+            .delete('/api/comments/hello')
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Invalid input')
+            })
+    })
+})
