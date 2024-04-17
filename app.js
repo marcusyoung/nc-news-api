@@ -1,7 +1,7 @@
 const express = require('express')
 const getTopics = require('./controllers/topics.controller')
 const { getArticle, getArticles, patchArticle } = require('./controllers/articles.controller')
-const { getCommentsByArticleId, postComment } = require('./controllers/comments.controller')
+const { getCommentsByArticleId, postComment, removeComment } = require('./controllers/comments.controller')
 const endpoints = require('./endpoints.json')
 
 const app = express()
@@ -22,6 +22,8 @@ app.get('/api/articles/:article_id/comments', getCommentsByArticleId)
 app.post('/api/articles/:article_id/comments', postComment)
 
 app.patch('/api/articles/:article_id', patchArticle)
+
+app.delete('/api/comments/:comment_id', removeComment)
 
 // if api endpoint not found return 404
 app.all('*', (req, res, next) => {
