@@ -1,7 +1,7 @@
 const express = require('express')
 const getTopics = require('./controllers/topics.controller')
 const { getArticle, getArticles } = require('./controllers/articles.controller')
-const { getCommentsByArticleId, postComment} = require('./controllers/comments.controller')
+const { getCommentsByArticleId, postComment } = require('./controllers/comments.controller')
 const endpoints = require('./endpoints.json')
 
 const app = express()
@@ -40,7 +40,10 @@ app.use((err, req, res, next) => {
             res.status(400).send({ msg: 'Invalid input' })
             break
         case '23502':
-            res.status(400).send({msg: 'Invalid input (not_null_violation)'})
+            res.status(400).send({ msg: 'Invalid input (not_null_violation)' })
+            break
+        case '23503':
+            res.status(404).send({ msg: 'Invalid input (foreign_key_violation)' })
             break
         default: next(err)
     }
