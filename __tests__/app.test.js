@@ -129,33 +129,22 @@ describe('GET /api/articles', () => {
                 expect(body.msg).toBe('No articles found for topic: dogs')
             })
     })
-    test('GET 404 if no articles have the passed topic', () => {
-        return request(app)
-            .get('/api/articles?topic=dogs')
-            .expect(404)
-            .then(({ body }) => {
-                expect(body.msg).toBe('No articles found for topic: dogs')
-            })
-    })
-    test('GET 200 ignores query if unrecognised and returns all articles', () => {
+    test('GET 400 if passed an invalid query key', () => {
         return request(app)
             .get('/api/articles?subject=cats')
-            .expect(200)
+            .expect(400)
             .then(({ body }) => {
                 const { articles } = body
-                expect(articles.length).toBe(13)
-                expect(articles).toBeSortedBy('created_at', { descending: true })
-                articles.forEach((article) => {
-                    expect(typeof article.article_id).toBe('number')
-                    expect(typeof article.author).toBe('string')
-                    expect(typeof article.title).toBe('string')
-                    expect(typeof article.topic).toBe('string')
-                    expect(typeof article.created_at).toBe('string')
-                    expect(typeof article.votes).toBe('number')
-                    expect(typeof article.article_img_url).toBe('string')
-                    expect(typeof article.comment_count).toBe('number')
-                })
-                expect(articles.map((article) => article.comment_count)).toEqual([2, 1, 0, 0, 0, 2, 11, 2, 0, 0, 0, 0, 0])
+                expect(body.msg).toBe('Invalid query key(s)')
+            })
+    })
+    test('GET 400 if passed mixture of valid and invalid keys', () => {
+        return request(app)
+            .get('/api/articles?topic=cats&&subject=cats')
+            .expect(400)
+            .then(({ body }) => {
+                const { articles } = body
+                expect(body.msg).toBe('Invalid query key(s)')
             })
     })
 })
