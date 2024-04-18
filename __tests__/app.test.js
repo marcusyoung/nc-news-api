@@ -54,10 +54,11 @@ describe('GET /api/topics', () => {
 describe('GET /api/articles/:article_id', () => {
     test('GET 200 responds with an article object corresponding with the id passed as a request parameter and having the expected properties', () => {
         return request(app)
-            .get('/api/articles/2')
+            .get('/api/articles/5')
             .then(({ body }) => {
                 const { article } = body
-                expect(article.article_id).toEqual(2)
+                expect(article.article_id).toEqual(5)
+                expect(article.comment_count).toEqual(2)
                 expect(typeof article.article_id).toBe('number')
                 expect(typeof article.author).toBe('string')
                 expect(typeof article.title).toBe('string')
@@ -66,6 +67,7 @@ describe('GET /api/articles/:article_id', () => {
                 expect(typeof article.created_at).toBe('string')
                 expect(typeof article.votes).toBe('number')
                 expect(typeof article.article_img_url).toBe('string')
+                expect(typeof article.comment_count).toBe('number')
             })
     })
     test('GET 400 if passed invalid parameter should return status 400 and expected message', () => {

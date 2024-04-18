@@ -2,7 +2,12 @@ const db = require('../db/connection')
 
 function selectArticle(article_id) {
 
-    return db.query(`SELECT * from articles where article_id =  $1;`, [article_id])
+    return db.query(`SELECT a.article_id, a.author, title, a.body, topic, a.created_at, a.votes, article_img_url, count(b.comment_id)::int AS comment_count
+    FROM articles a
+    LEFT JOIN comments b
+    ON a.article_id = b.article_id
+	WHERE a.article_id = $1
+	GROUP BY a.article_id ORDER BY created_at DESC;`, [article_id])
         .then((result) => {
             const article = result.rows[0]
             if (!article) {
@@ -13,9 +18,7 @@ function selectArticle(article_id) {
                     }
                 })
             }
-
             return article
-
         })
 }
 
