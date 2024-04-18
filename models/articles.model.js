@@ -20,19 +20,35 @@ function selectArticle(article_id) {
 }
 
 
-function selectArticles() {
+function selectArticles(topic) {
 
-    return db.query(`WITH tmp AS (
-        SELECT article_id, count(*) AS comment_count
-        FROM comments
-        GROUP BY article_id
-        )
-        SELECT articles.article_id, author, title, topic, created_at, votes, article_img_url, COALESCE(tmp.comment_count, 0)::int AS comment_count
-        FROM articles
-        LEFT JOIN tmp
-        ON articles.article_id = tmp.article_id
-        ORDER BY created_at DESC;`)
-        .then((results) => results.rows)
+    const topicArray = []
+
+    let sqlQuery = `SELECT a.article_id, a.author, title, topic, a.created_at, a.votes, article_img_url, count(b.comment_id)::int AS comment_count
+    FROM articles a
+    LEFT JOIN comments b
+    ON a.article_id = b.article_id`
+
+    if (topic) {
+        topicArray.push(topic)
+        sqlQuery = sqlQuery + ' WHERE topic = $1'
+    }
+
+    sqlQuery = sqlQuery + ' GROUP BY a.article_id ORDER BY created_at DESC;'
+
+    return db.query(sqlQuery, topicArray)
+        .then((results) => {
+            if (results.rows < 1) {
+                return Promise.reject({
+                    custom_error: {
+                        status: 404,
+                        msg: `No articles found for topic: ${topic}`
+                    }
+                })
+            } else {
+                return results.rows
+            }
+        })
 }
 
 function updateArticle(article_id, inc_votes) {
