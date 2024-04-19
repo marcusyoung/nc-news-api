@@ -6,7 +6,7 @@ function selectCommentsByArticleId(article_id) {
     // check if valid article_id exists
     return db.query(`SELECT * FROM articles WHERE article_id = $1;`, [article_id])
         .then((result) => {
-            if (result.rows < 1) {
+            if (result.rows.length < 1) {
                 return Promise.reject({
                     custom_error: {
                         status: 404,

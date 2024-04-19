@@ -41,13 +41,21 @@ function selectArticles(topic) {
 
     return db.query(sqlQuery, topicArray)
         .then((results) => {
-            if (results.rows < 1) {
-                return Promise.reject({
-                    custom_error: {
-                        status: 404,
-                        msg: `No articles found for topic: ${topic}`
-                    }
-                })
+            if (topic && results.rows.length === 0) {
+                // check if topic exists in topic table
+                // if it does not, return error message
+                return db.query(`SELECT * FROM topics WHERE slug = $1;`, topicArray)
+                    .then((result) => {
+                        if (result.rows.length === 0) {
+                            return Promise.reject({
+                                custom_error: {
+                                    status: 404,
+                                    msg: `Topic: ${topic} does not exist`
+                                }
+                            })
+                        }
+                        else return results.rows
+                    })
             } else {
                 return results.rows
             }

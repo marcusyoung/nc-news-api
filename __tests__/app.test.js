@@ -121,12 +121,21 @@ describe('GET /api/articles', () => {
                 })
             })
     })
-    test('GET 404 if no articles have the passed topic', () => {
+    test('GET 404 if no articles have the passed topic and the topic does not exist', () => {
         return request(app)
             .get('/api/articles?topic=dogs')
             .expect(404)
             .then(({ body }) => {
-                expect(body.msg).toBe('No articles found for topic: dogs')
+                expect(body.msg).toBe('Topic: dogs does not exist')
+            })
+    })
+    test('GET 200 return an empty array if no articles have the passed topic and the topic exists', () => {
+        return request(app)
+            .get('/api/articles?topic=paper')
+            .expect(200)
+            .then(({ body }) => {
+                const { articles } = body
+                expect(articles).toEqual([])
             })
     })
     test('GET 400 if passed an invalid query key', () => {
