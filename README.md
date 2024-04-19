@@ -4,7 +4,7 @@ This is an API for accessing application data programmatically from a database. 
 
 A hosted version of the API is available at [https://nc-news-api-fa1t.onrender.com](https://nc-news-api-fa1t.onrender.com). The API is hosted on Render, and the database is hosted on ElephantSQL. A list of enpoints can be obtained at `/api`.
 
-Note that the API is hosted on the Render free tier and the web services will sleep are 15 minutes of inactivity. If the web service is asleep it will take several seconds to receive a response from an incoming request.
+Note that the API is hosted on the Render free tier and the web services will sleep after 15 minutes of inactivity. If the web service is asleep it will take several seconds to receive a response from an incoming request.
 
 ## Setup required to run locally
 
