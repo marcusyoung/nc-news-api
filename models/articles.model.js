@@ -1,4 +1,23 @@
 const db = require('../db/connection')
+const { checkTopicExists } = require('../models/topics.model')
+
+
+
+function checkValidArticleId(article_id) {
+
+    return db.query(`SELECT * FROM articles WHERE article_id = $1;`, [article_id])
+        .then((result) => {
+            if (result.rows.length === 0) {
+                return Promise.reject({
+                    custom_error: {
+                        status: 404,
+                        msg: `No article found for article_id: ${article_id}`
+                    }
+                })
+            } else { return } // important to return 
+        })
+}
+
 
 function selectArticle(article_id) {
 
@@ -9,8 +28,7 @@ function selectArticle(article_id) {
 	WHERE a.article_id = $1
 	GROUP BY a.article_id ORDER BY created_at DESC;`, [article_id])
         .then((result) => {
-            const article = result.rows[0]
-            if (!article) {
+            if (result.rows.length === 0) {
                 return Promise.reject({
                     custom_error: {
                         status: 404,
@@ -18,7 +36,7 @@ function selectArticle(article_id) {
                     }
                 })
             }
-            return article
+            return result.rows[0]
         })
 }
 
@@ -40,49 +58,30 @@ function selectArticles(topic) {
     sqlQuery = sqlQuery + ' GROUP BY a.article_id ORDER BY created_at DESC;'
 
     return db.query(sqlQuery, topicArray)
-        .then((results) => {
-            if (topic && results.rows.length === 0) {
+        .then((result) => {
+            if (topic && result.rows.length === 0) {
                 // check if topic exists in topic table
-                // if it does not, return error message
-                return db.query(`SELECT * FROM topics WHERE slug = $1;`, topicArray)
-                    .then((result) => {
-                        if (result.rows.length === 0) {
-                            return Promise.reject({
-                                custom_error: {
-                                    status: 404,
-                                    msg: `Topic: ${topic} does not exist`
-                                }
-                            })
-                        }
-                        else return results.rows
+                return checkTopicExists(topic)
+                    .then(() => {
+                        return []
                     })
             } else {
-                return results.rows
+                return result.rows
             }
         })
 }
 
 function updateArticle(article_id, inc_votes) {
 
-    // check if article_id exists in database
-    // needs refactoring at some point as this code is duplicated in another model(dufferent ticket)
-    return db.query(`SELECT * FROM articles WHERE article_id = $1;`, [article_id])
-        .then((result) => {
-            if (result.rows < 1) {
-                return Promise.reject({
-                    custom_error: {
-                        status: 404,
-                        msg: `No article found for article_id: ${article_id}`
-                    }
-                })
-            } else {
-                return db.query(`UPDATE articles
+    // check for valid article_id - promise is rejected if not valid
+    return checkValidArticleId(article_id)
+        .then(() => {
+            return db.query(`UPDATE articles
                 SET votes = votes + $1 WHERE article_id = $2
                 RETURNING *;
                 `, [inc_votes, article_id])
-                    .then((result) => result.rows[0])
-            }
+                .then((result) => result.rows[0])
         })
 }
 
-module.exports = { selectArticle, selectArticles, updateArticle }
+module.exports = { selectArticle, selectArticles, updateArticle, checkValidArticleId }

@@ -156,6 +156,9 @@ describe('GET /api/articles', () => {
                 expect(body.msg).toBe('Invalid query key(s)')
             })
     })
+    test('GET 200 results return sorted by column passed in query', () => {
+
+    })
 })
 describe('GET comments', () => {
     test('GET 200 returns an array of comments for the provided article id', () => {

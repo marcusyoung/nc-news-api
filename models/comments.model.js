@@ -1,24 +1,15 @@
 const db = require('../db/connection')
-
+const { checkValidArticleId } = require('../models/articles.model')
 
 function selectCommentsByArticleId(article_id) {
 
-    // check if valid article_id exists
-    return db.query(`SELECT * FROM articles WHERE article_id = $1;`, [article_id])
-        .then((result) => {
-            if (result.rows.length < 1) {
-                return Promise.reject({
-                    custom_error: {
-                        status: 404,
-                        msg: `No article found for article_id: ${article_id}`
-                    }
-                })
-            } else {
-                return db.query(`SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC;`, [article_id])
-                    .then((result) => result.rows)
-            }
+    // check if valid article_id exists - promise is rejected if not
+    // and don't get to .then()
+    return checkValidArticleId(article_id)
+        .then(() => {
+            return db.query(`SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC;`, [article_id])
+                .then((result) => result.rows)
         })
-
 }
 
 function insertComment(article_id, username, body) {
@@ -26,7 +17,6 @@ function insertComment(article_id, username, body) {
         .then((result) => result.rows[0])
 
 }
-
 
 function deleteComment(comment_id) {
     return db.query('DELETE FROM comments WHERE comment_id = $1', [comment_id])
