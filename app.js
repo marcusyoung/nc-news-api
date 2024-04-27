@@ -22,7 +22,7 @@ app.use((err, req, res, next) => {
 app.use((err, req, res, next) => {
     switch (err.code) {
         case '22P02':
-            res.status(400).send({ msg: 'Invalid input' })
+            res.status(400).send({ msg: 'Invalid input (invalid_text_representation)' })
             break
         case '23502':
             res.status(400).send({ msg: 'Invalid input (not_null_violation)' })

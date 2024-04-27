@@ -75,7 +75,7 @@ describe('GET /api/articles/:article_id', () => {
             .get('/api/articles/1.23')
             .expect(400)
             .then(({ body }) => {
-                expect(body.msg).toBe('Invalid input')
+                expect(body.msg).toBe('Invalid input (invalid_text_representation)')
             })
     })
     test('GET 404 if passed article_id that does not exist in the database table return status 404 and expected message', () => {
@@ -219,7 +219,7 @@ describe('GET comments', () => {
             .get('/api/articles/1.45/comments')
             .expect(400)
             .then(({ body }) => {
-                expect(body.msg).toBe('Invalid input')
+                expect(body.msg).toBe('Invalid input (invalid_text_representation)')
             })
     })
     test('GET 404 if passed article_id that does not exist in the database table return status 404 and expected message', () => {
@@ -347,7 +347,7 @@ describe('Update article by incrementing votes', () => {
             .patch('/api/articles/1').send(newVote)
             .expect(400)
             .then(({ body }) => {
-                expect(body.msg).toBe('Invalid input')
+                expect(body.msg).toBe('Invalid input (invalid_text_representation)')
             })
     })
     test('PATCH 400 passed object does not have inc_votes property', () => {
@@ -366,9 +366,9 @@ describe('Delete comment', () => {
             .delete('/api/comments/1')
             .expect(204)
             .then(() => {
-                return db.query('SELECT COUNT (*)::int FROM comments')
+                return db.query('SELECT * FROM comments WHERE comment_id = 1')
                     .then((result) => {
-                        expect(result.rows[0].count).toBe(17)
+                        expect(result.rows.length).toBe(0)
                     })
             })
     })
@@ -385,7 +385,7 @@ describe('Delete comment', () => {
             .delete('/api/comments/hello')
             .expect(400)
             .then(({ body }) => {
-                expect(body.msg).toBe('Invalid input')
+                expect(body.msg).toBe('Invalid input (invalid_text_representation)')
             })
     })
 })
