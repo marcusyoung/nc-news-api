@@ -41,9 +41,9 @@ function selectArticle(article_id) {
 }
 
 
-function selectArticles(topic) {
+function selectArticles(topic, sort_by = 'created_at', order = 'desc') {
 
-    const topicArray = []
+    const queryPlaceholderArray = []
 
     let sqlQuery = `SELECT a.article_id, a.author, title, topic, a.created_at, a.votes, article_img_url, count(b.comment_id)::int AS comment_count
     FROM articles a
@@ -51,13 +51,13 @@ function selectArticles(topic) {
     ON a.article_id = b.article_id`
 
     if (topic) {
-        topicArray.push(topic)
+        queryPlaceholderArray.push(topic)
         sqlQuery = sqlQuery + ' WHERE topic = $1'
     }
 
-    sqlQuery = sqlQuery + ' GROUP BY a.article_id ORDER BY created_at DESC;'
+    sqlQuery = sqlQuery + ` GROUP BY a.article_id ORDER BY ${sort_by} ${order}`
 
-    return db.query(sqlQuery, topicArray)
+    return db.query(sqlQuery, queryPlaceholderArray)
         .then((result) => {
             if (topic && result.rows.length === 0) {
                 // check if topic exists in topic table

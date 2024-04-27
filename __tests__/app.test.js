@@ -157,7 +157,40 @@ describe('GET /api/articles', () => {
             })
     })
     test('GET 200 results return sorted by column passed in query', () => {
-
+        return request(app)
+            .get('/api/articles?sort_by=comment_count')
+            .expect(200)
+            .then(({ body }) => {
+                const { articles } = body
+                expect(articles).toBeSortedBy('comment_count', { descending: true })
+            })
+    })
+    test('GET 200 results return sorted by column passed in query and in specified order', () => {
+        return request(app)
+            .get('/api/articles?sort_by=comment_count&&order=asc')
+            .expect(200)
+            .then(({ body }) => {
+                const { articles } = body
+                expect(articles).toBeSortedBy('comment_count', { descending: false })
+            })
+    })
+    test('GET 400 if passed invalid sort_by column', () => {
+        return request(app)
+            .get('/api/articles?sort_by=invalid_column')
+            .expect(400)
+            .then(({ body }) => {
+                const { articles } = body
+                expect(body.msg).toBe('Invalid sort_by column')
+            })
+    })
+    test('GET 400 if passed invalid order value', () => {
+        return request(app)
+            .get('/api/articles?order=invalid')
+            .expect(400)
+            .then(({ body }) => {
+                const { articles } = body
+                expect(body.msg).toBe('Invalid sort order')
+            })
     })
 })
 describe('GET comments', () => {
