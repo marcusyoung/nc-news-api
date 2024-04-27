@@ -15,7 +15,7 @@ function checkTopicExists(topic) {
                         msg: `Topic: ${topic} does not exist`
                     }
                 })
-            } else { return } // important to return 
+            } else { return } // important to return even though have nothing to return
         })
 }
 

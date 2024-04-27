@@ -49,10 +49,11 @@
   },
   "GET /api/articles": {
     "description": "serves an array of all articles (without body) in descending order of date",
-    "queries": ["topic"],
+    "queries": ["topic", "sort_by", "order"],
     "exampleResponse": {
       "articles": [
         {
+          "article_id": 3,
           "author": "icellusedkars",
           "title": "Eight pug gifs that remind me of mitch",
           "topic": "mitch",
@@ -80,7 +81,7 @@
   "POST /api/articles/:article_id/comments": {
     "description": "posts a comment for an article",
     "exampleBody": {
-      "user": "rogersop",
+      "username": "rogersop",
       "body": "This is a test comment"
     },
     "exampleResponse": {
