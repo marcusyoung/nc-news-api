@@ -407,3 +407,23 @@ describe('Get users', () => {
             })
     })
 })
+describe('User authentication', () => {
+    test('Get 200 if valid user credentials are provided', ()=> {
+        return request(app)
+        .post('/api/users/auth/rogersop/testing123')
+        .expect(200)
+    })
+    test('Get 401 if invalid user credentials are provided', ()=> {
+        return request(app)
+        .post('/api/users/auth/rogersop/invalidpassword')
+        .expect(401)
+    })
+    test('Get 404 if user does not exist', ()=> {
+        return request(app)
+        .post('/api/users/auth/invaliduser/testing123')
+        .expect(404)
+        .then(({body}) => {
+            expect(body.msg).toBe('User does not exist')
+        })
+    })
+})

@@ -1,4 +1,6 @@
-const { selectUsers } = require('../models/users.model')
+const { selectUsers, selectUser } = require('../models/users.model')
+const bcrypt = require('bcryptjs')
+
 
 function getUsers(req, res, next) {
 
@@ -6,7 +8,25 @@ function getUsers(req, res, next) {
         .then((users) => {
             res.status(200).send({ users: users })
         })
+        .catch(next)
 }
 
 
-module.exports = { getUsers }
+function authoriseUser(req, res, next) {
+    
+    const {username, password} = req.params
+    
+    selectUser(username)
+    .then((user) => {
+        const isUser = bcrypt.compareSync(password, user.password)
+        if (isUser) {
+            res.status(200).send()
+        } else {
+            res.status(401).send()
+        }
+    })
+    .catch(next)
+}
+
+
+module.exports = { getUsers, authoriseUser }
