@@ -31,7 +31,10 @@ app.use((err, req, res, next) => {
             res.status(400).send({ msg: 'Invalid input (not_null_violation)' })
             break
         case '23503':
-            res.status(404).send({ msg: 'Invalid input (foreign_key_violation)' })
+            res.status(400).send({ msg: 'Invalid input (foreign_key_violation)' })
+            break
+        case '23505':
+            res.status(400).send({ msg: 'Invalid input (unique_violation)' })
             break
         default: next(err)
     }

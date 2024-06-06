@@ -27,7 +27,7 @@
         "created_at": "2020-07-09T20:11:00.000Z",
         "votes": 100,
         "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-        "comment_count": 11 
+        "comment_count": 11
       }
     }
   },
@@ -49,7 +49,11 @@
   },
   "GET /api/articles": {
     "description": "serves an array of all articles (without body) in descending order of date",
-    "queries": ["topic", "sort_by", "order"],
+    "queries": [
+      "topic",
+      "sort_by",
+      "order"
+    ],
     "exampleResponse": {
       "articles": [
         {
@@ -121,6 +125,22 @@
     "exampleBody": {
       "username": "rogersop",
       "password": "password"
+    }
+  },
+  "POST /api/users/signup": {
+    "description": "user new account registration",
+    "exampleBody": {
+      "username": "marcus",
+      "password": "testing123",
+      "name": "Marcus Young",
+      "avatar_url": "https://0.gravatar.com/avatar/daaccd8893f983eb241e9be1e03f7a71"
+    },
+    "exampleResponse": {
+      "user": {
+        "username": "marcus",
+        "name": "Marcus Young",
+        "avatar_url": "https://0.gravatar.com/avatar/daaccd8893f983eb241e9be1e03f7a71"
+      }
     }
   }
 }

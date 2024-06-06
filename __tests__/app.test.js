@@ -270,20 +270,20 @@ describe('POST 201 create comment for article', () => {
                 expect(body.msg).toBe('Invalid input (not_null_violation)')
             })
     })
-    test('POST 404 if passed username that does not exist in users table', () => {
+    test('POST 400 if passed username that does not exist in users table', () => {
         const newComment = { username: "nonexistentuser", body: "This is a test comment" }
         return request(app)
             .post('/api/articles/10/comments').send(newComment)
-            .expect(404)
+            .expect(400)
             .then(({ body }) => {
                 expect(body.msg).toBe('Invalid input (foreign_key_violation)')
             })
     })
-    test('POST 404 if passed article id that does not exist in article table', () => {
+    test('POST 400 if passed article id that does not exist in article table', () => {
         const newComment = { username: "nonexistentuser", body: "This is a test comment" }
         return request(app)
             .post('/api/articles/14/comments').send(newComment)
-            .expect(404)
+            .expect(400)
             .then(({ body }) => {
                 expect(body.msg).toBe('Invalid input (foreign_key_violation)')
             })
@@ -408,25 +408,47 @@ describe('Get users', () => {
     })
 })
 describe('User login authentication', () => {
-    test('Get 200 if valid user credentials are provided', ()=> {
+    test('Post 200 if valid user credentials are provided', ()=> {
         const userObject = {username: "rogersop", password: "testing123"}
         return request(app)
         .post('/api/users/login').send(userObject)
         .expect(200)
     })
-    test('Get 401 if invalid user credentials are provided', ()=> {
+    test('Post 401 if invalid user credentials are provided', ()=> {
         const userObject = {username: "rogersop", password: "invalid"}
         return request(app)
         .post('/api/users/login').send(userObject)
         .expect(401)
     })
-    test('Get 404 if user does not exist', ()=> {
+    test('Post 404 if user does not exist', ()=> {
         const userObject = {username: "invalid", password: "testing123"}
         return request(app)
         .post('/api/users/login').send(userObject)
         .expect(404)
         .then(({body}) => {
             expect(body.msg).toBe('User does not exist')
+        })
+    })
+})
+describe('User create account', () => {
+    test('Post 201 creates new user account', () => {
+        const userObject = {username: "marcus", password: "testing123", name: "Marcus Young", avatar_url: "https://0.gravatar.com/avatar/daaccd8893f983eb241e9be1e03f7a71"}
+        const insertedUser = {username: "marcus", name: "Marcus Young", avatar_url: "https://0.gravatar.com/avatar/daaccd8893f983eb241e9be1e03f7a71"}
+        return request(app)
+        .post('/api/users/signup').send(userObject)
+        .expect(201)
+        .then(({body}) => {
+            const {user} = body
+            expect(user).toEqual(insertedUser)
+        })
+    })
+    test('Post 400 if user account already exists', () => {
+        const userObject = {username: "rogersop", password: "testing123", name: "Marcus Young", avatar_url: "https://0.gravatar.com/avatar/daaccd8893f983eb241e9be1e03f7a71"}
+        return request(app)
+        .post('/api/users/signup').send(userObject)
+        .expect(400)
+        .then(({body}) => {
+            expect(body.msg).toEqual("Invalid input (unique_violation)")
         })
     })
 })

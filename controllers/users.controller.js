@@ -1,4 +1,4 @@
-const { selectUsers, selectUser } = require('../models/users.model')
+const { selectUsers, selectUser, insertUser } = require('../models/users.model')
 const bcrypt = require('bcryptjs')
 
 
@@ -28,5 +28,15 @@ function authoriseUser(req, res, next) {
     .catch(next)
 }
 
+function createUser(req, res, next) {
+    const {username, password, name, avatar_url} = req.body
+    const hashedPassword = bcrypt.hashSync(password, 8)
+    insertUser(username, hashedPassword, name, avatar_url)
+    .then((user) => {
+        res.status(201).send({user: user})
+    })
+    .catch(next)
+}
 
-module.exports = { getUsers, authoriseUser }
+
+module.exports = { getUsers, authoriseUser, createUser }
