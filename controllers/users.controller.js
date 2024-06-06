@@ -14,7 +14,7 @@ function getUsers(req, res, next) {
 
 function authoriseUser(req, res, next) {
     
-    const {username, password} = req.params
+    const {username, password} = req.body
     
     selectUser(username)
     .then((user) => {

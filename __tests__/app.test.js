@@ -407,20 +407,23 @@ describe('Get users', () => {
             })
     })
 })
-describe('User authentication', () => {
+describe('User login authentication', () => {
     test('Get 200 if valid user credentials are provided', ()=> {
+        const userObject = {username: "rogersop", password: "testing123"}
         return request(app)
-        .post('/api/users/auth/rogersop/testing123')
+        .post('/api/users/login').send(userObject)
         .expect(200)
     })
     test('Get 401 if invalid user credentials are provided', ()=> {
+        const userObject = {username: "rogersop", password: "invalid"}
         return request(app)
-        .post('/api/users/auth/rogersop/invalidpassword')
+        .post('/api/users/login').send(userObject)
         .expect(401)
     })
     test('Get 404 if user does not exist', ()=> {
+        const userObject = {username: "invalid", password: "testing123"}
         return request(app)
-        .post('/api/users/auth/invaliduser/testing123')
+        .post('/api/users/login').send(userObject)
         .expect(404)
         .then(({body}) => {
             expect(body.msg).toBe('User does not exist')

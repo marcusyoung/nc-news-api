@@ -4,7 +4,7 @@ const { getUsers, authoriseUser } = require('../controllers/users.controller')
 
 usersRouter.get('/', getUsers)
 
-usersRouter.post('/auth/:username/:password', authoriseUser)
+usersRouter.post('/login', authoriseUser)
 
 
 module.exports = usersRouter

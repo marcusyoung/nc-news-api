@@ -116,7 +116,11 @@
   "DELETE /api/comments/:comment_id": {
     "description": "deletes a comment"
   },
-  "POST /api/users/auth/:username/:password": {
-    "description": "authenticates a user"
+  "POST /api/users/login": {
+    "description": "authenticates a user",
+    "exampleBody": {
+      "username": "rogersop",
+      "password": "password"
+    }
   }
 }
