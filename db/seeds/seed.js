@@ -30,7 +30,7 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
       CREATE TABLE users (
         username VARCHAR PRIMARY KEY,
         password VARCHAR NOT NULL,
-        name VARCHAR NOT NULL,
+        name VARCHAR,
         avatar_url VARCHAR
       );`);
 
