@@ -4,7 +4,8 @@ const request = require('supertest')
 const data = require(`../db/data/test-data/index`)
 const seed = require('../db/seeds/seed')
 const expectedEndpoints = require('../endpoints.json')
-
+const jwt = require('jsonwebtoken')
+const jwtToken = process.env.JWT_SECRET
 
 beforeEach(() => {
     return seed(data)
@@ -244,8 +245,9 @@ describe('POST 201 create comment for article', () => {
     test('creates new comment for passed article_id and responds with that comment', () => {
         const newComment = { username: "rogersop", body: "This is a test comment" }
         const insertedComment = { author: "rogersop", body: "This is a test comment", votes: 0, article_id: 10 }
+        const token = jwt.sign({ username: "rogersop" }, jwtToken, { expiresIn: '1h' })
         return request(app)
-            .post('/api/articles/10/comments').send(newComment)
+            .post('/api/articles/10/comments').send(newComment).set({ 'jwt-token': token })
             .expect(201)
             .then(({ body }) => {
                 const { comment } = body
@@ -254,8 +256,9 @@ describe('POST 201 create comment for article', () => {
     })
     test('POST 400 if passed comment does not have username property', () => {
         const newComment = { user: "rogersop", body: "This is a test comment" }
+        const token = jwt.sign({ username: "rogersop" }, jwtToken, { expiresIn: '1h' })
         return request(app)
-            .post('/api/articles/10/comments').send(newComment)
+            .post('/api/articles/10/comments').send(newComment).set({ 'jwt-token': token })
             .expect(400)
             .then(({ body }) => {
                 expect(body.msg).toBe('Invalid input (not_null_violation)')
@@ -263,8 +266,9 @@ describe('POST 201 create comment for article', () => {
     })
     test('POST 400 if passed comment does not have body property', () => {
         const newComment = { username: "rogersop", notbody: "This is a test comment" }
+        const token = jwt.sign({ username: "rogersop" }, jwtToken, { expiresIn: '1h' })
         return request(app)
-            .post('/api/articles/10/comments').send(newComment)
+            .post('/api/articles/10/comments').send(newComment).send(newComment).set({ 'jwt-token': token })
             .expect(400)
             .then(({ body }) => {
                 expect(body.msg).toBe('Invalid input (not_null_violation)')
@@ -272,8 +276,9 @@ describe('POST 201 create comment for article', () => {
     })
     test('POST 400 if passed username that does not exist in users table', () => {
         const newComment = { username: "nonexistentuser", body: "This is a test comment" }
+        const token = jwt.sign({ username: "rogersop" }, jwtToken, { expiresIn: '1h' })
         return request(app)
-            .post('/api/articles/10/comments').send(newComment)
+            .post('/api/articles/10/comments').send(newComment).send(newComment).set({ 'jwt-token': token })
             .expect(400)
             .then(({ body }) => {
                 expect(body.msg).toBe('Invalid input (foreign_key_violation)')
@@ -281,8 +286,9 @@ describe('POST 201 create comment for article', () => {
     })
     test('POST 400 if passed article id that does not exist in article table', () => {
         const newComment = { username: "nonexistentuser", body: "This is a test comment" }
+        const token = jwt.sign({ username: "rogersop" }, jwtToken, { expiresIn: '1h' })
         return request(app)
-            .post('/api/articles/14/comments').send(newComment)
+            .post('/api/articles/14/comments').send(newComment).send(newComment).set({ 'jwt-token': token })
             .expect(400)
             .then(({ body }) => {
                 expect(body.msg).toBe('Invalid input (foreign_key_violation)')
@@ -303,8 +309,9 @@ describe('Update article by incrementing votes', () => {
             article_img_url:
                 "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
         }
+        const token = jwt.sign({ username: "rogersop" }, jwtToken, { expiresIn: '1h' })
         return request(app)
-            .patch('/api/articles/1').send(newVote)
+            .patch('/api/articles/1').send(newVote).set({ 'jwt-token': token })
             .expect(200)
             .then(({ body }) => {
                 const { article } = body
@@ -324,8 +331,9 @@ describe('Update article by incrementing votes', () => {
             article_img_url:
                 "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
         }
+        const token = jwt.sign({ username: "rogersop" }, jwtToken, { expiresIn: '1h' })
         return request(app)
-            .patch('/api/articles/1').send(newVote)
+            .patch('/api/articles/1').send(newVote).set({ 'jwt-token': token })
             .expect(200)
             .then(({ body }) => {
                 const { article } = body
@@ -334,8 +342,9 @@ describe('Update article by incrementing votes', () => {
     })
     test('PATCH 404 passed article_id is not in database', () => {
         const newVote = { inc_votes: 10 }
+        const token = jwt.sign({ username: "rogersop" }, jwtToken, { expiresIn: '1h' })
         return request(app)
-            .patch('/api/articles/14').send(newVote)
+            .patch('/api/articles/14').send(newVote).set({ 'jwt-token': token })
             .expect(404)
             .then(({ body }) => {
                 expect(body.msg).toBe('No article found for article_id: 14')
@@ -343,8 +352,9 @@ describe('Update article by incrementing votes', () => {
     })
     test('PATCH 400 if passed inc_votes value not an integer', () => {
         const newVote = { inc_votes: 10.5 }
+        const token = jwt.sign({ username: "rogersop" }, jwtToken, { expiresIn: '1h' })
         return request(app)
-            .patch('/api/articles/1').send(newVote)
+            .patch('/api/articles/1').send(newVote).set({ 'jwt-token': token })
             .expect(400)
             .then(({ body }) => {
                 expect(body.msg).toBe('Invalid input (invalid_text_representation)')
@@ -352,8 +362,9 @@ describe('Update article by incrementing votes', () => {
     })
     test('PATCH 400 passed object does not have inc_votes property', () => {
         const newVote = { wrong_key: 10 }
+        const token = jwt.sign({ username: "rogersop" }, jwtToken, { expiresIn: '1h' })
         return request(app)
-            .patch('/api/articles/1').send(newVote)
+            .patch('/api/articles/1').send(newVote).set({ 'jwt-token': token })
             .expect(400)
             .then(({ body }) => {
                 expect(body.msg).toBe('Invalid input (not_null_violation)')
@@ -362,8 +373,9 @@ describe('Update article by incrementing votes', () => {
 })
 describe('Delete comment', () => {
     test('DELETE 204 delete comment by comment id', () => {
+        const token = jwt.sign({ username: "rogersop" }, jwtToken, { expiresIn: '1h' })
         return request(app)
-            .delete('/api/comments/1')
+            .delete('/api/comments/1').set({ 'jwt-token': token })
             .expect(204)
             .then(() => {
                 return db.query('SELECT * FROM comments WHERE comment_id = 1')
@@ -373,16 +385,18 @@ describe('Delete comment', () => {
             })
     })
     test('DELETE 404 when comment_id does not exist in database table', () => {
+        const token = jwt.sign({ username: "rogersop" }, jwtToken, { expiresIn: '1h' })
         return request(app)
-            .delete('/api/comments/19')
+            .delete('/api/comments/19').set({ 'jwt-token': token })
             .expect(404)
             .then(({ body }) => {
                 expect(body.msg).toBe('No comment found for comment_id: 19')
             })
     })
     test('DELETE 400 when comment_id is not in valid format', () => {
+        const token = jwt.sign({ username: "rogersop" }, jwtToken, { expiresIn: '1h' })
         return request(app)
-            .delete('/api/comments/hello')
+            .delete('/api/comments/hello').set({ 'jwt-token': token })
             .expect(400)
             .then(({ body }) => {
                 expect(body.msg).toBe('Invalid input (invalid_text_representation)')
@@ -408,47 +422,52 @@ describe('Get users', () => {
     })
 })
 describe('User login authentication', () => {
-    test('Post 200 if valid user credentials are provided', ()=> {
-        const userObject = {username: "rogersop", password: "testing123"}
+    test('Post 200 if valid user credentials are provided', () => {
+        const userObject = { username: "rogersop", password: "testing123" }
         return request(app)
-        .post('/api/users/login').send(userObject)
-        .expect(200)
+            .post('/api/users/login').send(userObject)
+            .expect(200)
+            .then(({ body }) => {
+            })
     })
-    test('Post 401 if invalid user credentials are provided', ()=> {
-        const userObject = {username: "rogersop", password: "invalid"}
+    test('Post 401 if invalid user credentials are provided', () => {
+        const userObject = { username: "rogersop", password: "invalid" }
         return request(app)
-        .post('/api/users/login').send(userObject)
-        .expect(401)
+            .post('/api/users/login').send(userObject)
+            .expect(401)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Authentication failed')
+            })
     })
-    test('Post 404 if user does not exist', ()=> {
-        const userObject = {username: "invalid", password: "testing123"}
+    test('Post 404 if user does not exist', () => {
+        const userObject = { username: "invalid", password: "testing123" }
         return request(app)
-        .post('/api/users/login').send(userObject)
-        .expect(404)
-        .then(({body}) => {
-            expect(body.msg).toBe('User does not exist')
-        })
+            .post('/api/users/login').send(userObject)
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe('User does not exist')
+            })
     })
 })
 describe('User create account', () => {
     test('Post 201 creates new user account', () => {
-        const userObject = {username: "marcus", password: "testing123", name: "Marcus Young", avatar_url: "https://0.gravatar.com/avatar/daaccd8893f983eb241e9be1e03f7a71"}
-        const insertedUser = {username: "marcus", name: "Marcus Young", avatar_url: "https://0.gravatar.com/avatar/daaccd8893f983eb241e9be1e03f7a71"}
+        const userObject = { username: "marcus", password: "testing123", name: "Marcus Young", avatar_url: "https://0.gravatar.com/avatar/daaccd8893f983eb241e9be1e03f7a71" }
+        const insertedUser = { username: "marcus", name: "Marcus Young", avatar_url: "https://0.gravatar.com/avatar/daaccd8893f983eb241e9be1e03f7a71" }
         return request(app)
-        .post('/api/users/signup').send(userObject)
-        .expect(201)
-        .then(({body}) => {
-            const {user} = body
-            expect(user).toEqual(insertedUser)
-        })
+            .post('/api/users/signup').send(userObject)
+            .expect(201)
+            .then(({ body }) => {
+                const { user } = body
+                expect(user).toEqual(insertedUser)
+            })
     })
     test('Post 400 if user account already exists', () => {
-        const userObject = {username: "rogersop", password: "testing123", name: "Marcus Young", avatar_url: "https://0.gravatar.com/avatar/daaccd8893f983eb241e9be1e03f7a71"}
+        const userObject = { username: "rogersop", password: "testing123", name: "Marcus Young", avatar_url: "https://0.gravatar.com/avatar/daaccd8893f983eb241e9be1e03f7a71" }
         return request(app)
-        .post('/api/users/signup').send(userObject)
-        .expect(400)
-        .then(({body}) => {
-            expect(body.msg).toEqual("Invalid input (unique_violation)")
-        })
+            .post('/api/users/signup').send(userObject)
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toEqual("Invalid input (unique_violation)")
+            })
     })
 })
