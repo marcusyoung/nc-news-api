@@ -20,7 +20,7 @@ function authoriseUser(req, res, next) {
         .then((user) => bcrypt.compare(password, user.password))
         .then((isUser) => {
             if (isUser) {
-                const token = jwt.sign({ username: username }, jwtToken, { expiresIn: '1h' })
+                const token = jwt.sign({ username: username }, jwtToken, { expiresIn: '1m' })
                 res.status(200).send({ token: token })
             } else {
                 next({ custom_error: { status: 401, msg: "Authentication failed" } })

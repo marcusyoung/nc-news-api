@@ -15,9 +15,12 @@ function getCommentsByArticleId(req, res, next) {
 
 
 function postComment(req, res, next) {
-
     const { article_id } = req.params
     const { username, body } = req.body
+    const tokenUsername = req.user.username
+
+    // check that username in body matches username in JWT token
+    // if not then not authorised to comment on behalf of this user.
 
     insertComment(article_id, username, body)
         .then((comment) => {
