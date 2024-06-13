@@ -242,6 +242,17 @@ describe('GET comments', () => {
     })
 })
 describe('POST 201 create comment for article', () => {
+    test('POST 403 endpoint should not be reachable if token is not valid', () => {
+        const newComment = { username: "rogersop", body: "This is a test comment" }
+        const insertedComment = { author: "rogersop", body: "This is a test comment", votes: 0, article_id: 10 }
+        const token = "invalidtoken"
+        return request(app)
+            .post('/api/articles/10/comments').send(newComment).set({ 'jwt-token': token })
+            .expect(403)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Invalid token')
+            })
+    })
     test('creates new comment for passed article_id and responds with that comment', () => {
         const newComment = { username: "rogersop", body: "This is a test comment" }
         const insertedComment = { author: "rogersop", body: "This is a test comment", votes: 0, article_id: 10 }
@@ -254,14 +265,14 @@ describe('POST 201 create comment for article', () => {
                 expect(comment).toMatchObject(insertedComment)
             })
     })
-    test('POST 400 if passed comment does not have username property', () => {
+    test('POST 403 if passed comment does not have username property', () => {
         const newComment = { user: "rogersop", body: "This is a test comment" }
         const token = jwt.sign({ username: "rogersop" }, jwtToken, { expiresIn: '1h' })
         return request(app)
             .post('/api/articles/10/comments').send(newComment).set({ 'jwt-token': token })
-            .expect(400)
+            .expect(403)
             .then(({ body }) => {
-                expect(body.msg).toBe('Invalid input (not_null_violation)')
+                expect(body.msg).toBe('Unauthorised')
             })
     })
     test('POST 400 if passed comment does not have body property', () => {
@@ -274,18 +285,18 @@ describe('POST 201 create comment for article', () => {
                 expect(body.msg).toBe('Invalid input (not_null_violation)')
             })
     })
-    test('POST 400 if passed username that does not exist in users table', () => {
+    test('POST 403 if passed username that does not match username in jwt token', () => {
         const newComment = { username: "nonexistentuser", body: "This is a test comment" }
         const token = jwt.sign({ username: "rogersop" }, jwtToken, { expiresIn: '1h' })
         return request(app)
             .post('/api/articles/10/comments').send(newComment).send(newComment).set({ 'jwt-token': token })
-            .expect(400)
+            .expect(403)
             .then(({ body }) => {
-                expect(body.msg).toBe('Invalid input (foreign_key_violation)')
+                expect(body.msg).toBe('Unauthorised')
             })
     })
     test('POST 400 if passed article id that does not exist in article table', () => {
-        const newComment = { username: "nonexistentuser", body: "This is a test comment" }
+        const newComment = { username: "rogersop", body: "This is a test comment" }
         const token = jwt.sign({ username: "rogersop" }, jwtToken, { expiresIn: '1h' })
         return request(app)
             .post('/api/articles/14/comments').send(newComment).send(newComment).set({ 'jwt-token': token })
@@ -296,6 +307,27 @@ describe('POST 201 create comment for article', () => {
     })
 })
 describe('Update article by incrementing votes', () => {
+    test('PATCH 403 endpoint should not be reachable if token is invalid', () => {
+        const newVote = { inc_votes: 10 }
+        const updatedArticle = {
+            article_id: 1,
+            title: "Living in the shadow of a great man",
+            topic: "mitch",
+            author: "butter_bridge",
+            body: "I find this existence challenging",
+            created_at: "2020-07-09T20:11:00.000Z",
+            votes: 110,
+            article_img_url:
+                "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        }
+        const token = "badtoken"
+        return request(app)
+            .patch('/api/articles/1').send(newVote).set({ 'jwt-token': token })
+            .expect(403)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Invalid token')
+            })
+    })
     test('PATCH 200 Updates an article\'s vote column depending on value of inc_votes in the request body - positive increment', () => {
         const newVote = { inc_votes: 10 }
         const updatedArticle = {
@@ -372,8 +404,17 @@ describe('Update article by incrementing votes', () => {
     })
 })
 describe('Delete comment', () => {
+    test('DELETE 403 if attempt to reach endpoint whithout valid token', () => {
+        const token = "badtoken"
+        return request(app)
+            .delete('/api/comments/1').set({ 'jwt-token': token })
+            .expect(403)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Invalid token')
+            })
+    })
     test('DELETE 204 delete comment by comment id', () => {
-        const token = jwt.sign({ username: "rogersop" }, jwtToken, { expiresIn: '1h' })
+        const token = jwt.sign({ username: "butter_bridge" }, jwtToken, { expiresIn: '1h' })
         return request(app)
             .delete('/api/comments/1').set({ 'jwt-token': token })
             .expect(204)
@@ -391,6 +432,15 @@ describe('Delete comment', () => {
             .expect(404)
             .then(({ body }) => {
                 expect(body.msg).toBe('No comment found for comment_id: 19')
+            })
+    })
+    test('DELETE 403 when comment_id author does not match username in token', () => {
+        const token = jwt.sign({ username: "wrongauthor" }, jwtToken, { expiresIn: '1h' })
+        return request(app)
+            .delete('/api/comments/1').set({ 'jwt-token': token })
+            .expect(403)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Unauthorised')
             })
     })
     test('DELETE 400 when comment_id is not in valid format', () => {

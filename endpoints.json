@@ -83,7 +83,10 @@
     }
   },
   "POST /api/articles/:article_id/comments": {
-    "description": "posts a comment for an article",
+    "description": "posts a new comment for an article",
+    "headers": {
+      "jwt-token": "token"
+    },
     "exampleBody": {
       "username": "rogersop",
       "body": "This is a test comment"
@@ -101,6 +104,9 @@
   },
   "PATCH /api/articles/:article_id": {
     "description": "updates the number of votes for an article. The value of inc_votes in the request body can be negative or positive",
+    "headers": {
+      "jwt-token": "token"
+    },
     "exampleBody": {
       "inc_votes": 10
     },
@@ -118,20 +124,26 @@
     }
   },
   "DELETE /api/comments/:comment_id": {
-    "description": "deletes a comment"
+    "description": "deletes the specified comment",
+    "headers": {
+      "jwt-token": "token"
+    }
   },
   "POST /api/users/login": {
     "description": "authenticates a user",
     "exampleBody": {
       "username": "rogersop",
       "password": "password"
+    },
+    "exampleResponse": {
+      "token": "token"
     }
   },
   "POST /api/users/signup": {
     "description": "user new account registration",
     "exampleBody": {
       "username": "marcus",
-      "password": "testing123",
+      "password": "password",
       "name": "Marcus Young",
       "avatar_url": "https://0.gravatar.com/avatar/daaccd8893f983eb241e9be1e03f7a71"
     },

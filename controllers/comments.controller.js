@@ -1,6 +1,5 @@
 const { selectCommentsByArticleId, insertComment, deleteComment } = require('../models/comments.model')
 
-
 function getCommentsByArticleId(req, res, next) {
 
     const { article_id } = req.params
@@ -13,7 +12,6 @@ function getCommentsByArticleId(req, res, next) {
 
 }
 
-
 function postComment(req, res, next) {
     const { article_id } = req.params
     const { username, body } = req.body
@@ -21,26 +19,28 @@ function postComment(req, res, next) {
 
     // check that username in body matches username in JWT token
     // if not then not authorised to comment on behalf of this user.
-
-    insertComment(article_id, username, body)
-        .then((comment) => {
-            res.status(201).send({ comment: comment })
-        })
-        .catch(next)
+    if (tokenUsername === username) {
+        insertComment(article_id, username, body)
+            .then((comment) => {
+                res.status(201).send({ comment: comment })
+            })
+            .catch(next)
+    } else {
+        next({ custom_error: { status: 403, msg: "Unauthorised" } })
+    }
 
 
 }
 
 function removeComment(req, res, next) {
-
     const { comment_id } = req.params
+    const tokenUsername = req.user.username
 
-    deleteComment(comment_id)
+    deleteComment(comment_id, tokenUsername)
         .then((result) => {
             res.status(204).send()
         })
         .catch(next)
-
 }
 
 module.exports = { getCommentsByArticleId, postComment, removeComment }

@@ -1,6 +1,31 @@
 const db = require('../db/connection')
 const { checkValidArticleId } = require('../models/articles.model')
 
+
+function checkComment(comment_id, tokenUsername) {
+
+    return db.query(`SELECT author FROM comments WHERE comment_id = $1;`, [comment_id])
+        .then((result) => {
+            if (result.rowCount === 0) {
+                return Promise.reject({
+                    custom_error: {
+                        status: 404,
+                        msg: `No comment found for comment_id: ${comment_id}`
+                    }
+                })
+            } else if (result.rows[0].author != tokenUsername) {
+                return Promise.reject({
+                    custom_error: {
+                        status: 403,
+                        msg: `Unauthorised`
+                    }
+                })
+            } else {
+                return
+            }
+        })
+}
+
 function selectCommentsByArticleId(article_id) {
 
     // check if valid article_id exists - promise is rejected if not
@@ -18,20 +43,11 @@ function insertComment(article_id, username, body) {
 
 }
 
-function deleteComment(comment_id) {
-    return db.query('DELETE FROM comments WHERE comment_id = $1', [comment_id])
-        .then((result) => {
-            const { rowCount } = result
-            if (rowCount === 0) {
-                return Promise.reject({
-                    custom_error: {
-                        status: 404,
-                        msg: `No comment found for comment_id: ${comment_id}`
-                    }
-                })
-            } else {
-                return
-            }
+function deleteComment(comment_id, tokenUsername) {
+
+    return checkComment(comment_id, tokenUsername)
+        .then(() => {
+            return db.query('DELETE FROM comments WHERE comment_id = $1', [comment_id])
         })
 }
 
