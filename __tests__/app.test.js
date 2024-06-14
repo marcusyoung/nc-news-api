@@ -404,7 +404,7 @@ describe('Update article by incrementing votes', () => {
     })
 })
 describe('Delete comment', () => {
-    test('DELETE 403 if attempt to reach endpoint whithout valid token', () => {
+    test('DELETE 403 if attempt to reach endpoint without valid token', () => {
         const token = "badtoken"
         return request(app)
             .delete('/api/comments/1').set({ 'jwt-token': token })
@@ -518,6 +518,38 @@ describe('User create account', () => {
             .expect(400)
             .then(({ body }) => {
                 expect(body.msg).toEqual("Invalid input (unique_violation)")
+            })
+    })
+})
+describe.only('GET /api/users/:username', () => {
+    test('DELETE 403 if attempt to reach endpoint without valid token', () => {
+        const token = "badtoken"
+        return request(app)
+            .get('/api/users/rogersop').set({ 'jwt-token': token })
+            .expect(403)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Invalid token')
+            })
+    })
+    test('GET 200 responds with a user object corresponding with the id passed as a request parameter and having the expected properties', () => {
+        const token = jwt.sign({ username: "butter_bridge" }, jwtToken, { expiresIn: '1h' })
+        return request(app)
+            .get('/api/users/rogersop').set({ 'jwt-token': token })
+            .then(({ body }) => {
+                const { user } = body
+                console.log(body)
+                expect(typeof user.username).toBe("string"),
+                expect(typeof user.name).toBe("string"),
+                expect(typeof user.avatar_url).toBe("string")
+            })
+    })
+    test('GET 404 if passed username that does not exist in the database table return status 404 and expected message', () => {
+        const token = jwt.sign({ username: "butter_bridge" }, jwtToken, { expiresIn: '1h' })
+        return request(app)
+            .get('/api/users/invalidusername').set({ 'jwt-token': token })
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe('User does not exist')
             })
     })
 })

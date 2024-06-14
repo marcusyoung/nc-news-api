@@ -69,6 +69,19 @@
       ]
     }
   },
+  "GET /api/user/:username": {
+    "description": "serves a user object",
+    "headers": {
+      "jwt-token": "token"
+    },
+    "exampleResponse": {
+      "user": {
+        "username": "rogersop",
+        "name": "paul",
+        "avatar_url": "https://avatars2.githubusercontent.com/u/24394918?s=400&v=4"
+      }
+    }
+  },
   "GET /api/users": {
     "description": "serves an array of users",
     "queries": [],

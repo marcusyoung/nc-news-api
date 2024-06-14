@@ -1,4 +1,4 @@
-const { selectUsers, selectUser, insertUser } = require('../models/users.model')
+const { selectUsers, selectUser, checkUser, insertUser } = require('../models/users.model')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const jwtToken = process.env.JWT_SECRET
@@ -11,12 +11,21 @@ function getUsers(req, res, next) {
         .catch(next)
 }
 
+function getUser(req, res, next) {
+
+    const { username } = req.params
+
+    selectUser(username)
+        .then((user) => res.status(200).send({ user: user }))
+        .catch(next)
+}
+
 
 function authoriseUser(req, res, next) {
 
     const { username, password } = req.body
 
-    selectUser(username)
+    checkUser(username)
         .then((user) => bcrypt.compare(password, user.password))
         .then((isUser) => {
             if (isUser) {
@@ -45,4 +54,4 @@ function createUser(req, res, next) {
 }
 
 
-module.exports = { getUsers, authoriseUser, createUser }
+module.exports = { getUsers, getUser, authoriseUser, createUser }

@@ -24,17 +24,27 @@ function selectUsers() {
 function selectUser(username) {
     return checkValidUsername(username)
         .then(() => {
-            return db.query(`SELECT password FROM users WHERE username = $1;`, [username])
-                .then((result) => result.rows[0])
+            return db.query(`SELECT username, name, avatar_url FROM users where username = $1;`, [username])
+        })
+        .then((result) => {
+            return result.rows[0]
         })
 }
 
-function insertUser(username, hashedPassword, name, avatar_url="") {
+function checkUser(username) {
+    return checkValidUsername(username)
+        .then(() => {
+            return db.query(`SELECT password FROM users WHERE username = $1;`, [username])
+        })
+        .then((result) => result.rows[0])
+}
+
+function insertUser(username, hashedPassword, name, avatar_url = "") {
     return db.query(`INSERT into users 
     (username, password, name, avatar_url) 
     VALUES ($1, $2, $3, $4) RETURNING username, name, avatar_url`
-    , [username, hashedPassword, name, avatar_url])
-    .then((result) => result.rows[0])
+        , [username, hashedPassword, name, avatar_url])
+        .then((result) => result.rows[0])
 }
 
-module.exports = { selectUsers, selectUser, insertUser }
+module.exports = { selectUsers, selectUser, checkUser, insertUser }
