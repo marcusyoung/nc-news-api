@@ -537,7 +537,6 @@ describe.only('GET /api/users/:username', () => {
             .get('/api/users/rogersop').set({ 'jwt-token': token })
             .then(({ body }) => {
                 const { user } = body
-                console.log(body)
                 expect(typeof user.username).toBe("string"),
                 expect(typeof user.name).toBe("string"),
                 expect(typeof user.avatar_url).toBe("string")
