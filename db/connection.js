@@ -9,7 +9,7 @@ const config = {}
 
 if (ENV === 'production') {
   config.connectionString = process.env.DATABASE_URL
-  config.max = 2
+  config.max = 10
   // use the ncnews schema
   config.options = "-c search_path=ncnews"
 }
