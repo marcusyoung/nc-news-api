@@ -521,7 +521,7 @@ describe('User create account', () => {
             })
     })
 })
-describe.only('GET /api/users/:username', () => {
+describe('GET /api/users/:username', () => {
     test('DELETE 403 if attempt to reach endpoint without valid token', () => {
         const token = "badtoken"
         return request(app)
