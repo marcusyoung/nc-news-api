@@ -72,7 +72,7 @@
   "GET /api/user/:username": {
     "description": "serves a user object",
     "headers": {
-      "jwt-token": "token"
+      "X-XSRF-TOKEN": "token"
     },
     "exampleResponse": {
       "user": {
@@ -98,7 +98,7 @@
   "POST /api/articles/:article_id/comments": {
     "description": "posts a new comment for an article",
     "headers": {
-      "jwt-token": "token"
+      "X-XSRF-TOKEN": "token"
     },
     "exampleBody": {
       "username": "rogersop",
@@ -118,7 +118,7 @@
   "PATCH /api/articles/:article_id": {
     "description": "updates the number of votes for an article. The value of inc_votes in the request body can be negative or positive",
     "headers": {
-      "jwt-token": "token"
+      "X-XSRF-TOKEN": "token"
     },
     "exampleBody": {
       "inc_votes": 10
@@ -139,7 +139,7 @@
   "DELETE /api/comments/:comment_id": {
     "description": "deletes the specified comment",
     "headers": {
-      "jwt-token": "token"
+      "X-XSRF-TOKEN": "token"
     }
   },
   "POST /api/users/login": {
@@ -149,7 +149,7 @@
       "password": "password"
     },
     "exampleResponse": {
-      "token": "token"
+      "msg": "Logged in successfully"
     }
   },
   "POST /api/users/signup": {

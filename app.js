@@ -1,11 +1,20 @@
 const cors = require('cors')
 const express = require('express')
 const apiRouter = require('./routes/api-router')
+const cookieParser = require('cookie-parser')
 
 const app = express()
 
-app.use(cors())
+if (process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test") {
+    app.use(cors({ origin: ["http://localhost:5173"], credentials: true }))
+}
+
+if (process.env.NODE_ENV === "production") {
+    app.use(cors({ origin: ["https://nc-news-zmze.onrender.com"], credentials: true }))
+}
+
 app.use(express.json())
+app.use(cookieParser())
 
 app.use('/', apiRouter)
 

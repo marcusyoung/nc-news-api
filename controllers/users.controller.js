@@ -1,7 +1,9 @@
 const { selectUsers, selectUser, checkUser, insertUser } = require('../models/users.model')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
-const jwtToken = process.env.JWT_SECRET
+const crypto = require('crypto')
+const jwtSecret = process.env.JWT_SECRET
+const csrfSecret = process.env.CSRF_SECRET
 
 
 function getUsers(req, res, next) {
@@ -29,8 +31,12 @@ function authoriseUser(req, res, next) {
         .then((user) => bcrypt.compare(password, user.password))
         .then((isUser) => {
             if (isUser) {
-                const token = jwt.sign({ username: username }, jwtToken, { expiresIn: '24h' })
-                res.status(200).send({ token: token })
+                const uuid = crypto.randomUUID()
+                const csrfToken = crypto.createHmac('sha256', csrfSecret).update(uuid).digest('hex')
+                const jwtToken = jwt.sign({ username: username, uuid: uuid, csrf: csrfToken}, jwtSecret, { expiresIn: '24h' })
+                res.cookie('jwt-token', jwtToken, {httpOnly: true, secure: true, sameSite: 'none'})
+                res.cookie('csrf-token', csrfToken, {httpOnly: false, secure: true, sameSite: 'none'})
+                res.status(200).send({msg: 'Logged in successfully'})
             } else {
                 next({ custom_error: { status: 401, msg: "Authentication failed" } })
             }
@@ -53,5 +59,13 @@ function createUser(req, res, next) {
     }
 }
 
+function logoutUser(req, res, next) {
+    res
+    .clearCookie('jwt-token', {httpOnly: true, secure: true, sameSite: 'none'})
+    .clearCookie('csrf-token', {httpOnly: false, secure: true, sameSite: 'none'})
+    .status(201)
+    .send({msg: 'Successfully logged out'})
+}
 
-module.exports = { getUsers, getUser, authoriseUser, createUser }
+
+module.exports = { getUsers, getUser, authoriseUser, createUser, logoutUser }
