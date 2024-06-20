@@ -2,9 +2,9 @@
 
 This is an API for accessing application data programmatically from a database. It mimics a real world backend service (such as Reddit) where the API would provide information to the front end architecture. The database consists of four tables: users, articles, topics, and comments.
 
-A hosted version of the API is available at [https://nc-news-api-fa1t.onrender.com](https://nc-news-api-fa1t.onrender.com). The API is hosted on Render, and the database is hosted on ElephantSQL. A list of enpoints can be obtained at `/api`.
+A hosted version of the API is available at [https://ncnews-api.int2.uk](https://ncnews-api.int2.uk). The API and database are hosted on Render. A list of endpoints can be obtained at `/api`.
 
-Note that the API is hosted on the Render free tier and the web services will sleep after 15 minutes of inactivity. If the web service is asleep it will take several seconds to receive a response from an incoming request.
+Further details about the implementation are available in the front-end repo at [https://github.com/marcusyoung/nc-news](https://github.com/marcusyoung/nc-news).
 
 ## Setup required to run locally
 
