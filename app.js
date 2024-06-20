@@ -10,7 +10,7 @@ if (process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test") {
 }
 
 if (process.env.NODE_ENV === "production") {
-    app.use(cors({ origin: ["https://nc-news-zmze.onrender.com"], credentials: true }))
+    app.use(cors({ origin: ["https://ncnews.int2.uk"], credentials: true }))
 }
 
 app.use(express.json())
