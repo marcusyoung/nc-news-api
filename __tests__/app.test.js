@@ -697,8 +697,8 @@ describe('GET /api/users/:username', () => {
             .then(({ body }) => {
                 const { user } = body
                 expect(typeof user.username).toBe("string"),
-                expect(typeof user.name).toBe("string"),
-                expect(typeof user.avatar_url).toBe("string")
+                    expect(typeof user.name).toBe("string"),
+                    expect(typeof user.avatar_url).toBe("string")
             })
     })
     test('GET 404 if passed username that does not exist in the database table return status 404 and expected message', () => {
@@ -725,8 +725,164 @@ describe('POST 201 /api/users/logout', () => {
             .set('Cookie', [`jwt-token=${token}`, `csrf-token=${csrfToken}`])
             .set('X-XSRF-TOKEN', csrfToken)
             .expect(201)
-            .then(({body}) => {
+            .then(({ body }) => {
                 expect(body.msg).toBe('Successfully logged out')
+            })
+    })
+})
+describe('Update comment by incrementing votes', () => {
+    test('PATCH 403 endpoint should not be reachable if token is invalid', () => {
+        const newVote = { inc_votes: 1 }
+        const updatedComment = {
+            comment_id: 1,
+            body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+            article_id: 9,
+            author: "butter_bridge",
+            votes: 17,
+            created_at: "2020-04-06T20:13:17.000Z"
+        }
+        const uuid = crypto.randomUUID()
+        const csrfToken = crypto.createHmac('sha256', csrfSecret).update(uuid).digest('hex')
+        const token = "badtoken"
+        return request(app)
+            .patch('/api/comments/1')
+            .send(newVote)
+            .set('Cookie', [`jwt-token=${token}`, `csrf-token=${csrfToken}`])
+            .set('X-XSRF-TOKEN', csrfToken)
+            .expect(403)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Invalid jwt token')
+            })
+    })
+    test('PATCH 403 endpoint should not be reachable if invalid csrf token in header', () => {
+        const newVote = { inc_votes: 1 }
+        const updatedComment = {
+            comment_id: 1,
+            body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+            article_id: 9,
+            author: "butter_bridge",
+            votes: 17,
+            created_at: "2020-04-06T20:13:17.000Z"
+        }
+        const uuid = crypto.randomUUID()
+        const csrfToken = crypto.createHmac('sha256', csrfSecret).update(uuid).digest('hex')
+        const token = jwt.sign({ username: "butter_bridge", uuid: uuid, csrf: csrfToken }, jwtSecret, { expiresIn: '1h' })
+        return request(app)
+            .patch('/api/comments/1')
+            .send(newVote)
+            .set('Cookie', [`jwt-token=${token}`, `csrf-token=${csrfToken}`])
+            .set('X-XSRF-TOKEN', "invalidtoken")
+            .expect(403)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Invalid csrf token')
+            })
+    })
+    test('PATCH 200 Updates a comment\'s vote column depending on value of inc_votes in the request body - positive increment', () => {
+        const newVote = { inc_votes: 1 }
+        const updatedComment = {
+            comment_id: 1,
+            body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+            article_id: 9,
+            author: "butter_bridge",
+            votes: 17,
+            created_at: "2020-04-06T12:17:00.000Z"
+        }
+        const uuid = crypto.randomUUID()
+        const csrfToken = crypto.createHmac('sha256', csrfSecret).update(uuid).digest('hex')
+        const token = jwt.sign({ username: "rogersop", uuid: uuid, csrf: csrfToken }, jwtSecret, { expiresIn: '1h' })
+        return request(app)
+            .patch('/api/comments/1')
+            .send(newVote)
+            .set('Cookie', [`jwt-token=${token}`, `csrf-token=${csrfToken}`])
+            .set('X-XSRF-TOKEN', csrfToken)
+            .expect(200)
+            .then(({ body }) => {
+                const { comment } = body
+                expect(comment).toEqual(updatedComment)
+            })
+    })
+    test('PATCH 200 Updates a comment\'s vote column depending on value of inc_votes in the request body - negative increment', () => {
+        const newVote = { inc_votes: -1 }
+        const updatedComment = {
+            comment_id: 1,
+            body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+            article_id: 9,
+            author: "butter_bridge",
+            votes: 15,
+            created_at: "2020-04-06T12:17:00.000Z"
+        }
+        const uuid = crypto.randomUUID()
+        const csrfToken = crypto.createHmac('sha256', csrfSecret).update(uuid).digest('hex')
+        const token = jwt.sign({ username: "rogersop", uuid: uuid, csrf: csrfToken }, jwtSecret, { expiresIn: '1h' })
+        return request(app)
+            .patch('/api/comments/1')
+            .send(newVote)
+            .set('Cookie', [`jwt-token=${token}`, `csrf-token=${csrfToken}`])
+            .set('X-XSRF-TOKEN', csrfToken)
+            .expect(200)
+            .then(({ body }) => {
+                const { comment } = body
+                expect(comment).toEqual(updatedComment)
+            })
+    })
+    test('PATCH 404 passed comment_id is not in database', () => {
+        const newVote = { inc_votes: 1 }
+        const uuid = crypto.randomUUID()
+        const csrfToken = crypto.createHmac('sha256', csrfSecret).update(uuid).digest('hex')
+        const token = jwt.sign({ username: "butter_bridge", uuid: uuid, csrf: csrfToken }, jwtSecret, { expiresIn: '1h' })
+        return request(app)
+            .patch('/api/comments/20')
+            .send(newVote)
+            .set('Cookie', [`jwt-token=${token}`, `csrf-token=${csrfToken}`])
+            .set('X-XSRF-TOKEN', csrfToken)
+            .expect(404)
+            .then(({ body }) => {
+                expect(body.msg).toBe('No comment found for comment_id: 20')
+            })
+    })
+    test('PATCH 400 if passed inc_votes value not an integer', () => {
+        const newVote = { inc_votes: 10.5 }
+        const uuid = crypto.randomUUID()
+        const csrfToken = crypto.createHmac('sha256', csrfSecret).update(uuid).digest('hex')
+        const token = jwt.sign({ username: "rogersop", uuid: uuid, csrf: csrfToken }, jwtSecret, { expiresIn: '1h' })
+        return request(app)
+            .patch('/api/comments/1')
+            .send(newVote)
+            .set('Cookie', [`jwt-token=${token}`, `csrf-token=${csrfToken}`])
+            .set('X-XSRF-TOKEN', csrfToken)
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Invalid input (invalid_text_representation)')
+            })
+    })
+    test('PATCH 400 passed object does not have inc_votes property', () => {
+        const newVote = { wrong_key: 10 }
+        const uuid = crypto.randomUUID()
+        const csrfToken = crypto.createHmac('sha256', csrfSecret).update(uuid).digest('hex')
+        const token = jwt.sign({ username: "rogersop", uuid: uuid, csrf: csrfToken }, jwtSecret, { expiresIn: '1h' })
+        return request(app)
+            .patch('/api/comments/1')
+            .send(newVote)
+            .set('Cookie', [`jwt-token=${token}`, `csrf-token=${csrfToken}`])
+            .set('X-XSRF-TOKEN', csrfToken)
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe('Invalid input (not_null_violation)')
+            })
+    })
+    test('PATCH 400 if user trying to vote on one of their own comments', () => {
+        const newVote = { inc_votes: 1 }
+        const uuid = crypto.randomUUID()
+        const csrfToken = crypto.createHmac('sha256', csrfSecret).update(uuid).digest('hex')
+        const token = jwt.sign({ username: "butter_bridge", uuid: uuid, csrf: csrfToken }, jwtSecret, { expiresIn: '1h' })
+        return request(app)
+            .patch('/api/comments/1')
+            .send(newVote)
+            .set('Cookie', [`jwt-token=${token}`, `csrf-token=${csrfToken}`])
+            .set('X-XSRF-TOKEN', csrfToken)
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe('You can\'t vote on your own comment')
             })
     })
 })

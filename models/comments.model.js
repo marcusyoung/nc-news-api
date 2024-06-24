@@ -2,7 +2,7 @@ const db = require('../db/connection')
 const { checkValidArticleId } = require('../models/articles.model')
 
 
-function checkComment(comment_id, tokenUsername) {
+function checkCommentExists(comment_id) {
 
     return db.query(`SELECT author FROM comments WHERE comment_id = $1;`, [comment_id])
         .then((result) => {
@@ -13,7 +13,17 @@ function checkComment(comment_id, tokenUsername) {
                         msg: `No comment found for comment_id: ${comment_id}`
                     }
                 })
-            } else if (result.rows[0].author != tokenUsername) {
+            } else {
+                return result.rows[0]
+            }
+        })
+}
+
+function checkUserIsAuthorised(comment_id, tokenUsername) {
+
+    return db.query(`SELECT author FROM comments WHERE comment_id = $1;`, [comment_id])
+        .then((result) => {
+            if (result.rows[0].author != tokenUsername) {
                 return Promise.reject({
                     custom_error: {
                         status: 403,
@@ -44,12 +54,35 @@ function insertComment(article_id, username, body) {
 }
 
 function deleteComment(comment_id, tokenUsername) {
-
-    return checkComment(comment_id, tokenUsername)
+    return checkCommentExists(comment_id)
+        .then(() => {
+            return checkUserIsAuthorised(comment_id, tokenUsername)
+        })
         .then(() => {
             return db.query('DELETE FROM comments WHERE comment_id = $1', [comment_id])
         })
 }
 
+function updateComment(comment_id, inc_votes, tokenUsername) {
 
-module.exports = { selectCommentsByArticleId, insertComment, deleteComment }
+    // check for valid comment_id - promise is rejected if not valid
+    return checkCommentExists(comment_id)
+        .then((result) => {
+            if (result.author === tokenUsername) {
+                return Promise.reject({
+                    custom_error: {
+                        status: 400,
+                        msg: `You can't vote on your own comment`
+                    }
+                })
+            } else {
+            return db.query(`UPDATE comments
+                SET votes = votes + $1 WHERE comment_id = $2
+                RETURNING *;
+                `, [inc_votes, comment_id])
+                .then((result) => result.rows[0])
+            }
+        })
+}
+
+module.exports = { selectCommentsByArticleId, insertComment, deleteComment, updateComment }
