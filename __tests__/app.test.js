@@ -396,7 +396,7 @@ describe('Update article by incrementing votes', () => {
         }
         const uuid = crypto.randomUUID()
         const csrfToken = crypto.createHmac('sha256', csrfSecret).update(uuid).digest('hex')
-        const token = jwt.sign({ username: "butter_bridge", uuid: uuid, csrf: csrfToken }, jwtSecret, { expiresIn: '1h' })
+        const token = jwt.sign({ username: "rogersop", uuid: uuid, csrf: csrfToken }, jwtSecret, { expiresIn: '1h' })
         return request(app)
             .patch('/api/articles/1')
             .send(newVote)
@@ -422,7 +422,7 @@ describe('Update article by incrementing votes', () => {
         }
         const uuid = crypto.randomUUID()
         const csrfToken = crypto.createHmac('sha256', csrfSecret).update(uuid).digest('hex')
-        const token = jwt.sign({ username: "butter_bridge", uuid: uuid, csrf: csrfToken }, jwtSecret, { expiresIn: '1h' })
+        const token = jwt.sign({ username: "rogersop", uuid: uuid, csrf: csrfToken }, jwtSecret, { expiresIn: '1h' })
         return request(app)
             .patch('/api/articles/1')
             .send(newVote)
@@ -449,7 +449,7 @@ describe('Update article by incrementing votes', () => {
         }
         const uuid = crypto.randomUUID()
         const csrfToken = crypto.createHmac('sha256', csrfSecret).update(uuid).digest('hex')
-        const token = jwt.sign({ username: "butter_bridge", uuid: uuid, csrf: csrfToken }, jwtSecret, { expiresIn: '1h' })
+        const token = jwt.sign({ username: "rogersop", uuid: uuid, csrf: csrfToken }, jwtSecret, { expiresIn: '1h' })
         return request(app)
             .patch('/api/articles/1')
             .send(newVote)
@@ -465,7 +465,7 @@ describe('Update article by incrementing votes', () => {
         const newVote = { inc_votes: 10 }
         const uuid = crypto.randomUUID()
         const csrfToken = crypto.createHmac('sha256', csrfSecret).update(uuid).digest('hex')
-        const token = jwt.sign({ username: "butter_bridge", uuid: uuid, csrf: csrfToken }, jwtSecret, { expiresIn: '1h' })
+        const token = jwt.sign({ username: "rogersop", uuid: uuid, csrf: csrfToken }, jwtSecret, { expiresIn: '1h' })
         return request(app)
             .patch('/api/articles/14')
             .send(newVote)
@@ -480,7 +480,7 @@ describe('Update article by incrementing votes', () => {
         const newVote = { inc_votes: 10.5 }
         const uuid = crypto.randomUUID()
         const csrfToken = crypto.createHmac('sha256', csrfSecret).update(uuid).digest('hex')
-        const token = jwt.sign({ username: "butter_bridge", uuid: uuid, csrf: csrfToken }, jwtSecret, { expiresIn: '1h' })
+        const token = jwt.sign({ username: "rogersop", uuid: uuid, csrf: csrfToken }, jwtSecret, { expiresIn: '1h' })
         return request(app)
             .patch('/api/articles/1')
             .send(newVote)
@@ -491,11 +491,26 @@ describe('Update article by incrementing votes', () => {
                 expect(body.msg).toBe('Invalid input (invalid_text_representation)')
             })
     })
+    test('PATCH 400 if logged on user attemping to vote on own article', () => {
+        const newVote = { inc_votes: 1 }
+        const uuid = crypto.randomUUID()
+        const csrfToken = crypto.createHmac('sha256', csrfSecret).update(uuid).digest('hex')
+        const token = jwt.sign({ username: "butter_bridge", uuid: uuid, csrf: csrfToken }, jwtSecret, { expiresIn: '1h' })
+        return request(app)
+            .patch('/api/articles/1')
+            .send(newVote)
+            .set('Cookie', [`jwt-token=${token}`, `csrf-token=${csrfToken}`])
+            .set('X-XSRF-TOKEN', csrfToken)
+            .expect(400)
+            .then(({ body }) => {
+                expect(body.msg).toBe('You can\'t vote on your own content')
+            })
+    })
     test('PATCH 400 passed object does not have inc_votes property', () => {
         const newVote = { wrong_key: 10 }
         const uuid = crypto.randomUUID()
         const csrfToken = crypto.createHmac('sha256', csrfSecret).update(uuid).digest('hex')
-        const token = jwt.sign({ username: "butter_bridge", uuid: uuid, csrf: csrfToken }, jwtSecret, { expiresIn: '1h' })
+        const token = jwt.sign({ username: "rogersop", uuid: uuid, csrf: csrfToken }, jwtSecret, { expiresIn: '1h' })
         return request(app)
             .patch('/api/articles/1')
             .send(newVote)
@@ -882,7 +897,7 @@ describe('Update comment by incrementing votes', () => {
             .set('X-XSRF-TOKEN', csrfToken)
             .expect(400)
             .then(({ body }) => {
-                expect(body.msg).toBe('You can\'t vote on your own comment')
+                expect(body.msg).toBe('You can\'t vote on your own content')
             })
     })
 })

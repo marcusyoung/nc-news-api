@@ -47,8 +47,9 @@ function patchArticle(req, res, next) {
 
     const { article_id } = req.params
     const { inc_votes } = req.body
+    const tokenUsername = req.user.username
 
-    updateArticle(article_id, inc_votes)
+    updateArticle(article_id, inc_votes, tokenUsername)
         .then((article) => {
             res.status(200).send({ article: article })
         })

@@ -14,7 +14,7 @@ function checkValidArticleId(article_id) {
                         msg: `No article found for article_id: ${article_id}`
                     }
                 })
-            } else { return } // important to return 
+            } else { return result.rows[0] } // important to return 
         })
 }
 
@@ -71,16 +71,25 @@ function selectArticles(topic, sort_by = 'created_at', order = 'desc') {
         })
 }
 
-function updateArticle(article_id, inc_votes) {
+function updateArticle(article_id, inc_votes, tokenUsername) {
 
     // check for valid article_id - promise is rejected if not valid
     return checkValidArticleId(article_id)
-        .then(() => {
+        .then((result) => {
+            if (result.author === tokenUsername) {
+                return Promise.reject({
+                    custom_error: {
+                        status: 400,
+                        msg: `You can't vote on your own content`
+                    }
+                })
+            } else {
             return db.query(`UPDATE articles
                 SET votes = votes + $1 WHERE article_id = $2
                 RETURNING *;
                 `, [inc_votes, article_id])
                 .then((result) => result.rows[0])
+            }
         })
 }
 

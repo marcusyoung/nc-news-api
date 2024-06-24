@@ -72,7 +72,7 @@ function updateComment(comment_id, inc_votes, tokenUsername) {
                 return Promise.reject({
                     custom_error: {
                         status: 400,
-                        msg: `You can't vote on your own comment`
+                        msg: `You can't vote on your own content`
                     }
                 })
             } else {
