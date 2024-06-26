@@ -35,11 +35,11 @@ function authoriseUser(req, res, next) {
                 const csrfToken = crypto.createHmac('sha256', csrfSecret).update(uuid).digest('hex')
                 const jwtToken = jwt.sign({ username: username, uuid: uuid, csrf: csrfToken }, jwtSecret, { expiresIn: '24h' })
                 if (env === 'production') {
-                    res.cookie('jwt-token', jwtToken, { domain: 'int2.uk', httpOnly: true, secure: true, sameSite: 'none' })
-                    res.cookie('csrf-token', csrfToken, { domain: 'int2.uk', httpOnly: false, secure: true, sameSite: 'none' })
+                    res.cookie('jwt-token', jwtToken, { domain: 'int2.uk', httpOnly: true, secure: true, sameSite: 'Strict' })
+                    res.cookie('csrf-token', csrfToken, { domain: 'int2.uk', httpOnly: false, secure: true, sameSite: 'Strict' })
                 } else {
-                    res.cookie('jwt-token', jwtToken, { httpOnly: true, secure: true, sameSite: 'none' })
-                    res.cookie('csrf-token', csrfToken, { httpOnly: false, secure: true, sameSite: 'none' })
+                    res.cookie('jwt-token', jwtToken, { httpOnly: true, secure: true, sameSite: 'Strict' })
+                    res.cookie('csrf-token', csrfToken, { httpOnly: false, secure: true, sameSite: 'Strict' })
                 }
                 res.status(200).send({ msg: 'Logged in successfully' })
             } else {
@@ -66,12 +66,12 @@ function createUser(req, res, next) {
 
 function logoutUser(req, res, next) {
     if (env === 'production') {
-        res.clearCookie('jwt-token', { domain: 'int2.uk', httpOnly: true, secure: true, sameSite: 'none' })
-        res.clearCookie('csrf-token', { domain: 'int2.uk', httpOnly: false, secure: true, sameSite: 'none' })
+        res.clearCookie('jwt-token', { domain: 'int2.uk', httpOnly: true, secure: true, sameSite: 'Strict' })
+        res.clearCookie('csrf-token', { domain: 'int2.uk', httpOnly: false, secure: true, sameSite: 'Strict' })
     }
     else {
-        res.clearCookie('jwt-token', { httpOnly: true, secure: true, sameSite: 'none' })
-        res.clearCookie('csrf-token', { httpOnly: false, secure: true, sameSite: 'none' })
+        res.clearCookie('jwt-token', { httpOnly: true, secure: true, sameSite: 'Strict' })
+        res.clearCookie('csrf-token', { httpOnly: false, secure: true, sameSite: 'Strict' })
     }
     res.status(201).send({ msg: 'Successfully logged out' })
 }
