@@ -2,8 +2,6 @@
 
 This is an API for accessing application data programmatically from a database. It mimics a real world backend service (such as Reddit) where the API would provide information to the front end architecture. The database consists of four tables: users, articles, topics, and comments.
 
-A hosted version of the API is available at [https://ncnews-api.int2.uk](https://ncnews-api.int2.uk). The API and database are hosted on Render. A list of endpoints can be obtained at `/api`.
-
 Further details about the implementation are available in the front-end repo at [https://github.com/marcusyoung/nc-news](https://github.com/marcusyoung/nc-news).
 
 ## Setup required to run locally
